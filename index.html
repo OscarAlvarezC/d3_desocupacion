@@ -12,7 +12,7 @@
     
     <body>
         <div>
-            <h1> Desocupación Nacional </h1>
+            <h1> Desocupaci&oacute;n Nacional </h1>
         </div>
         
         
@@ -36,12 +36,18 @@
 
     var marginx = width * 0.05;
     var marginy = height * 0.05;
-
+ 
     // append the svg object to the body of the page
+    
+
     var svg = d3.select("#line_plot")
         .append("svg")
         .attr("width", width)
+        .attr("fill", "red")
+        .style("background", "#E7E5E4")
         .attr("height", height);
+
+ 
 
     //Read the data
     d3.csv("Desocupacion.csv",
@@ -53,11 +59,13 @@
 
       // Now I can use this dataset:
       function(data) {
-
+        
         // Add X axis
         var x = d3.scaleTime()
             .domain(d3.extent(data, function(d) { return d.Fecha; }))
             .range([0+marginx, width-marginx ]);
+           
+ 
 
         svg.append("g")
             .attr("transform", "translate(0," + (height-padding) + ")")
@@ -66,6 +74,13 @@
             .transition()
             .duration(2000)
             .style("opacity", 1);
+
+// Add the text label for the x axis
+svg.append("text")
+.attr("transform", "translate(350," + (height-100) + ")")
+        .style("text-anchor", "middle")
+        .text("Meses");
+  
 
         // Add Y axis
         var y = d3.scaleLinear()
@@ -79,6 +94,15 @@
             .transition()
             .duration(2000)
             .style("opacity", 1);
+
+               // Add the text label for the Y axis
+          svg.append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 0 - marginx.left)
+              .attr("x",0 - (height / 2))
+              .attr("dy", "1em")
+              .style("text-anchor", "middle")
+              .text("Total");
 
         // Line
         svg.append("path")
@@ -113,9 +137,9 @@
         
         var mouseMove = function(d) {
             tooltip
-                .html("Año: "+ d.Fecha.getFullYear() +
+                .html("A&ntilde;o: "+ d.Fecha.getFullYear() +
                     "<br>Mes: " + (d.Fecha.getMonth() + 1) +
-                    "<br>Tasa de desocupación: " + d.Total)
+                    "<br>Tasa de desocupaci&oacute;n: " + d.Total)
                 .style("left", (d3.mouse(this)[0]+20) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (d3.mouse(this)[1]-10) + "px")
         }
