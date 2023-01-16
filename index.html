@@ -15,13 +15,15 @@
             <h1> Desocupaci&oacute;n Nacional </h1>
         </div>
         
-        
         <div id="line_plot"></div>
-        
-        <!-- <div id="line_plot2"></div> -->
-        
+        <text>*Fuente: <a href="https://www.inegi.org.mx/app/tabulados/default.aspx?nc=622">INEGI</a></text>
+
         <h2> Conclusiones </h2>
-        <p> Lorem </p>
+        <p> En el gráfico podemos visualizar claramente una tendencia a la baja en la desocupación laboral. Existe una recuperación
+            tras el incremento presentado en abril del 2020, efecto que pudiera estar asociado con la pandemia por COVID-19.</p>
+        
+        <h3> Integrantes del Equipo 1 </h3>
+        <p> Oscar Daniel Alvarez Cerna <br> Jose Ivan Garcia Alvarado <br> Joaquín Mora Sandria </p>
     </body>
     
 </html>
@@ -29,21 +31,20 @@
 <script type="text/javascript">
             
     // set the dimensions and margins of the graph
-    var width = 800,
-        height = 500;
+    const graf = d3.select('#line_plot')
+    var width = +graf.style('width').slice(0, -2),
+        height = 9/21*width;
 
-    var padding = 32;
+    var padding =  35;
 
-    var marginx = width * 0.05;
-    var marginy = height * 0.05;
+    var marginx = width * 0.03;
+    var marginy = height * 0.03;
     
     var labelx = 5;
     var labely = 10;
-    var labelmain = 30;
+    var labelmain = 15;
  
     // append the svg object to the body of the page
-    
-
     var svg = d3.select("#line_plot")
         .append("svg")
         .attr("width", width)
@@ -55,210 +56,129 @@
     //Read the data
     d3.csv("Desocupacion.csv",
 
-      // Format variables:
-      function(d){
-        return { Fecha : d3.timeParse("%Y-%m-%d")(d.Fecha), Total : d.Total }
-      },
+        // Format variables:
+        function(d){
+            return { Fecha : d3.timeParse("%Y-%m-%d")(d.Fecha), Total : d.Total }
+        },
 
-      // Now I can use this dataset:
-      function(data) {
+        // We use the dataset:
+        function(data) {
         
-        // Add the text label for the title
-        svg.append("text")
-            .attr("transform", "translate(" + width/2 + "," + (labelmain) + ")")
-            .style("text-anchor", "middle")
-            .text("Desocupación Nacional");
-        
-        // Add X axis
-        var x = d3.scaleTime()
-            .domain(d3.extent(data, function(d) { return d.Fecha; }))
-            .range([0+marginx+labely, width-marginx+labely]);
-           
-        svg.append("g")
-            .attr("transform", "translate(" + 0 + "," + (height-padding-labelx) + ")")
-            .call(d3.axisBottom(x))
-            .style("opacity", 0)
-            .transition()
-            .duration(2000)
-            .style("opacity", 1);
+            // Add the text label for the title
+            svg.append("text")
+                .attr("transform", "translate(" + width/2 + "," + (labelmain) + ")")
+                .style("text-anchor", "middle")
+                .text("Desocupación Nacional (porcentaje respecto a la PEA)");
 
-        // Add the text label for the x axis
-        svg.append("text")
-            .attr("transform", "translate(" + width/2 + "," + (height-labelx) + ")")
-            .style("text-anchor", "middle")
-            .text("Meses");
-  
+            // Add X axis
+            var x = d3.scaleTime()
+                .domain(d3.extent(data, function(d) { return d.Fecha; }))
+                .range([0+marginx+labely+padding, width-marginx+labely]);
 
-        // Add Y axis
-        var y = d3.scaleLinear()
-            .domain([0, d3.max(data, function(d) { return +d.Total; })])
-            .range([ height-marginy-labelx, 0+marginy-labelx+labelmain]);
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate(" + 0 + "," + (height-padding-labelx) + ")")
+                .call(d3.axisBottom(x))
+                .style("opacity", 0)
+                .transition()
+                .duration(2000)
+                .style("opacity", 1);
 
-        svg.append("g")
-            .attr("transform", "translate(" + (padding+labely) + "," + 0 + ")")
-            .call(d3.axisLeft(y))
-            .style("opacity", 0)
-            .transition()
-            .duration(2000)
-            .style("opacity", 1);
+            // Add the text label for the x axis
+            svg.append("text")
+                .attr("transform", "translate(" + width/2 + "," + (height-labelx) + ")")
+                .style("text-anchor", "middle")
+                .text("Meses");
 
-        // Add the text label for the Y axis
-        svg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 0 - marginx.left)
-            .attr("x",0 - (height / 2))
-            .attr("dy", "1em")
-            .style("text-anchor", "middle")
-            .text("Total");
 
-        // Line
-        svg.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 1.5)
-            .attr("d", d3.line()
-                  .x(function(d) { return x(d.Fecha)})
-                  .y(function(d) { return y(d.Total)})
-            )
-            .style("opacity", 0)
-            .transition()
-            .delay(1000)
-            .duration(2000)
-            .style("opacity", 1);
-        
-        // tooltip
-        var tooltip = d3.select("#line_plot")
-            .append("div")
-            .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "1px")
-            .style("border-radius", "5px")
-            .style("padding", "10px")
+            // Add Y axis
+            var y = d3.scaleLinear()
+                .domain([0, d3.max(data, function(d) { return +d.Total; })])
+                .range([ height-marginy-labelx-padding, 0+marginy+labelx+labelmain]);
 
-        var mouseOver = function(d) {
-            tooltip.style("opacity", 1)
-        }
-        
-        var mouseMove = function(d) {
-            tooltip
-                .html("A&ntilde;o: "+ d.Fecha.getFullYear() +
-                    "<br>Mes: " + (d.Fecha.getMonth() + 1) +
-                    "<br>Desocupaci&oacute;n: " + d.Total)
-                .style("left", (d3.mouse(this)[0]+20) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-                .style("top", (d3.mouse(this)[1]-10) + "px")
-        }
-        
-        var mouseLeave = function(d) {
-            tooltip
-              .transition()
-              .duration(200)
-              .style("opacity", 0)
-        }
-        
-        svg.append('g')
-            .selectAll("circle")
-            .data(data)
-            .enter()
-            .append("circle")
-                .attr("cx", function(d) { return x(d.Fecha); })
-                .attr("cy", function(d){ return y(d.Total); })
-            .attr("r",5)
-            .on("mouseover", mouseOver )
-            .on("mousemove", mouseMove )
-            .on("mouseleave", mouseLeave )
-            .style("opacity", 0)
-            .transition()
-            .delay(2000)
-            .duration(2000)
-            .style("opacity", 1)
-        
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate(" + (padding+labely) + "," + 0 + ")")
+                .call(d3.axisLeft(y))
+                .style("opacity", 0)
+                .transition()
+                .duration(2000)
+                .style("opacity", 1);
+
+            // Add the text label for the Y axis
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - marginx.left)
+                .attr("x",0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Total");
+
+            // Line
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 1.5)
+                .attr("d", d3.line()
+                      .x(function(d) { return x(d.Fecha)})
+                      .y(function(d) { return y(d.Total)})
+                )
+                .style("opacity", 0)
+                .transition()
+                .delay(1000)
+                .duration(2000)
+                .style("opacity", 1);
+
+            // tooltip
+            var tooltip = d3.select("#line_plot")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("border", "solid")
+                .style("border-width", "1px")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+
+            var mouseOver = function(d) {
+                tooltip.style("opacity", 1)
+            }
+
+            var mouseMove = function(d) {
+                tooltip
+                    .html("A&ntilde;o: "+ d.Fecha.getFullYear() +
+                        "<br>Mes: " + (d.Fecha.getMonth() + 1) +
+                        "<br>Desocupaci&oacute;n: " + d.Total)
+                    .style("left", (d3.mouse(this)[0]+20) + "px")
+                    .style("top", (d3.mouse(this)[1]-10) + "px")
+            }
+
+            var mouseLeave = function(d) {
+                tooltip
+                  .transition()
+                  .duration(200)
+                  .style("opacity", 0)
+            }
+
+            // Points
+            svg.append('g')
+                .selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                    .attr("cx", function(d) { return x(d.Fecha); })
+                    .attr("cy", function(d){ return y(d.Total); })
+                .attr("r",5)
+                .on("mouseover", mouseOver )
+                .on("mousemove", mouseMove )
+                .on("mouseleave", mouseLeave )
+                .style("opacity", 0)
+                .transition()
+                .delay(2000)
+                .duration(2000)
+                .style("opacity", 1)
+
     })
 
 </script>
-
-<!-- <script type="text/javascript">
-    
-        // set the dimensions and margins of the graph
-    var width = 800,
-        height = 500;
-
-    var padding = 25;
-
-    var marginx = width * 0.05;
-    var marginy = height * 0.05;
-
-    // append the svg object to the body of the page
-    var svg = d3.select("#line_plot2")
-      .append("svg")
-        .attr("width", width)
-        .attr("height", height);
-
-    //Read the data
-    d3.csv("Desocupacion.csv",
-
-      // Format variables:
-      function(d){
-        return { Fecha : d3.timeParse("%Y-%m-%d")(d.Fecha), Hombres : d.Hombres, Mujeres: d.Mujeres }
-      },
-
-      // Now I can use this dataset:
-      function(data) {
-
-        // Add X axis
-        var x = d3.scaleTime()
-          .domain(d3.extent(data, function(d) { return d.Fecha; }))
-          .range([0+marginx, width-marginx ]);
-
-        svg.append("g")
-          .attr("transform", "translate(0," + (height-padding) + ")")
-          .call(d3.axisBottom(x));
-        
-        const maxy = d3.max(data, function(d) { 
-            return (d.Hombres < d.Mujeres) ? d.Mujeres : d.Hombres})
-
-        // Add Y axis
-        var y = d3.scaleLinear()
-          .domain([0, maxy])
-          .range([ height-marginy, 0+marginy]);
-
-        svg.append("g")
-          .attr("transform", "translate(" + padding + ",0)")
-          .call(d3.axisLeft(y));
-
-        // Line
-        svg.append("path")
-          .datum(data)
-          .attr("fill", "none")
-          .attr("stroke", "blue")
-          .attr("stroke-width", 1.5)
-          .attr("d", d3.line()
-            .x(function(d) { return x(d.Fecha) })
-            .y(function(d) { return y(d.Hombres) })
-            )
-        
-        // Add Y axis
-        var y = d3.scaleLinear()
-          .domain([0, maxy])
-          .range([ height-marginy, 0+marginy]);
-
-        svg.append("g")
-          .attr("transform", "translate(" + padding + ",0)")
-          .call(d3.axisLeft(y));
-
-        // Line
-        svg.append("path")
-          .datum(data)
-          .attr("fill", "none")
-          .attr("stroke", "red")
-          .attr("stroke-width", 1.5)
-          .attr("d", d3.line()
-            .x(function(d) { return x(d.Fecha) })
-            .y(function(d) { return y(d.Mujeres) })
-            )
-
-    })
-</script> -->
-
