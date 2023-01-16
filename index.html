@@ -32,10 +32,14 @@
     var width = 800,
         height = 500;
 
-    var padding = 25;
+    var padding = 32;
 
     var marginx = width * 0.05;
     var marginy = height * 0.05;
+    
+    var labelx = 5;
+    var labely = 10;
+    var labelmain = 30;
  
     // append the svg object to the body of the page
     
@@ -43,7 +47,6 @@
     var svg = d3.select("#line_plot")
         .append("svg")
         .attr("width", width)
-        .attr("fill", "red")
         .style("background", "#E7E5E4")
         .attr("height", height);
 
@@ -60,49 +63,53 @@
       // Now I can use this dataset:
       function(data) {
         
+        // Add the text label for the title
+        svg.append("text")
+            .attr("transform", "translate(" + width/2 + "," + (labelmain) + ")")
+            .style("text-anchor", "middle")
+            .text("Desocupación Nacional");
+        
         // Add X axis
         var x = d3.scaleTime()
             .domain(d3.extent(data, function(d) { return d.Fecha; }))
-            .range([0+marginx, width-marginx ]);
+            .range([0+marginx+labely, width-marginx+labely]);
            
- 
-
         svg.append("g")
-            .attr("transform", "translate(0," + (height-padding) + ")")
+            .attr("transform", "translate(" + 0 + "," + (height-padding-labelx) + ")")
             .call(d3.axisBottom(x))
             .style("opacity", 0)
             .transition()
             .duration(2000)
             .style("opacity", 1);
 
-// Add the text label for the x axis
-svg.append("text")
-.attr("transform", "translate(350," + (height-100) + ")")
-        .style("text-anchor", "middle")
-        .text("Meses");
+        // Add the text label for the x axis
+        svg.append("text")
+            .attr("transform", "translate(" + width/2 + "," + (height-labelx) + ")")
+            .style("text-anchor", "middle")
+            .text("Meses");
   
 
         // Add Y axis
         var y = d3.scaleLinear()
             .domain([0, d3.max(data, function(d) { return +d.Total; })])
-            .range([ height-marginy, 0+marginy]);
+            .range([ height-marginy-labelx, 0+marginy-labelx+labelmain]);
 
         svg.append("g")
-            .attr("transform", "translate(" + padding + ",0)")
+            .attr("transform", "translate(" + (padding+labely) + "," + 0 + ")")
             .call(d3.axisLeft(y))
             .style("opacity", 0)
             .transition()
             .duration(2000)
             .style("opacity", 1);
 
-               // Add the text label for the Y axis
-          svg.append("text")
-              .attr("transform", "rotate(-90)")
-              .attr("y", 0 - marginx.left)
-              .attr("x",0 - (height / 2))
-              .attr("dy", "1em")
-              .style("text-anchor", "middle")
-              .text("Total");
+        // Add the text label for the Y axis
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - marginx.left)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Total");
 
         // Line
         svg.append("path")
@@ -111,8 +118,8 @@ svg.append("text")
             .attr("stroke", "steelblue")
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
-                  .x(function(d) { return x(d.Fecha) })
-                  .y(function(d) { return y(d.Total) })
+                  .x(function(d) { return x(d.Fecha)})
+                  .y(function(d) { return y(d.Total)})
             )
             .style("opacity", 0)
             .transition()
@@ -139,7 +146,7 @@ svg.append("text")
             tooltip
                 .html("A&ntilde;o: "+ d.Fecha.getFullYear() +
                     "<br>Mes: " + (d.Fecha.getMonth() + 1) +
-                    "<br>Tasa de desocupaci&oacute;n: " + d.Total)
+                    "<br>Desocupaci&oacute;n: " + d.Total)
                 .style("left", (d3.mouse(this)[0]+20) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
                 .style("top", (d3.mouse(this)[1]-10) + "px")
         }
